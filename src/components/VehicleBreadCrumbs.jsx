@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
 import BreadCrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
@@ -11,23 +11,20 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-const theme = createTheme({
-});
-
 function VehicleBreadCrumbs({name}) {
 
     const classes = useStyles();
 
     return (
-        <ThemeProvider theme={theme}>
-            <BreadCrumbs seperator=">">
-                <Link color="inherit">
-                    Vehicles
-                </Link>
+        
+        <BreadCrumbs separator=">">
+            <Link color="inherit">
+                Vehicles
+            </Link>
 
-                <Typography color="textPrimary">{name}</Typography>
-            </BreadCrumbs>
-        </ThemeProvider>
+            <Typography color="textPrimary">{name}</Typography>
+        </BreadCrumbs>
+        
     );
 };
 

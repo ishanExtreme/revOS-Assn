@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme)=>{
             width: 50,
         },
         statsContainer: {
-            width: '900px'
+            width: '700px'
         }
     };
 });
@@ -82,7 +82,7 @@ function StatChart(props) {
                     
                     <div className={classes.statButtonContainer}>
                         {/* Heading  */}
-                        <Typography variant="h5" display="inline" style={{marginRight: '10px'}}>
+                        <Typography variant="h5" display="inline" style={{marginRight: '10px', fontWeight: 'bold'}}>
                             Statistics
                         </Typography>
                         {/* Type Tabs */}
@@ -120,7 +120,7 @@ function StatChart(props) {
             <br/>
             <div
             style={{
-                width: '900px',
+                width: '700px',
                 height: '300px'
             }}
             >

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core';
 
@@ -10,6 +10,8 @@ import Popover from '@material-ui/core/Popover';
 import TextField from '@material-ui/core/TextField';
 import AutoComplete from '@material-ui/lab/Autocomplete'
 import Grid from '@material-ui/core/Grid';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -17,7 +19,10 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import CarCard from '../components/CarCard';
 import StatChart from '../components/StatChart';
 import VehicleBreadCrumbs from '../components/VehicleBreadCrumbs';
-
+import VehicleTable from '../components/VehicleTable';
+import liveApi from '../api/liveapi';
+import rowsApi from '../api/rowapi';
+import useApi from '../hooks/useAPI';
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -46,12 +51,15 @@ const useStyles = makeStyles((theme)=>{
         },
         breadContainer: {
             marginBottom: theme.spacing(5)
+        },
+        backdrop: {
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+        },
+        tableContainer: {
+            marginTop: theme.spacing(3)
         }
     };
-});
-
-const theme = createTheme({
-   
 });
 
 const data = [
@@ -110,6 +118,64 @@ function Main(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     // current vehicle selected
     const [vehicle, setVehicle] = useState(null);
+    // for breadcrumbs display
+    const [currVehicleName, setCurrVehicleName] = useState(null);
+    // is updating live
+    const [live, setLive] = useState(true);
+    // table rows (10)
+    const [rows, setRows] = useState(null);
+    // page navigate
+    const [page, setPage] = useState(0);
+    // loading
+    const [loading, setLoading] = useState(false);
+
+    // apis
+    const getVehicleDetails = useApi(liveApi.vehicle_details);
+    const getTableRows = useApi(rowsApi.table);
+
+    // call live update API after every 10 seconds
+    // and clear handler on unmount
+    useEffect(()=> {
+
+        const timer = setInterval(liveUpdate, 10000);
+
+        return ()=>{
+            clearInterval(timer);
+        }
+    });
+
+    // call get rows every time page number changes
+    useEffect(()=> {
+        console.log("In");
+        if(!vehicle) return;
+        getRows(vehicle.vin);
+    }, [page]);
+
+    // changes page number
+    const handlePageChange = (newPage)=>{
+        setPage(newPage);
+    }
+
+    // live updating vehicle details card
+    const liveUpdate = async ()=>{
+
+        // if no vehicle selected
+        if(!vehicle) return;
+
+        const result = await getVehicleDetails.request({token:"1234", vin:vehicle.vin});
+
+        // error
+        if(!result.ok)
+        {
+            console.log("error");
+            setLive(false);
+            return;
+        }
+
+        setVehicle(result.data.data);
+        setLive(true);
+
+    };
 
     // sets achorEl to the button element position
     const handleClick = (event) => {
@@ -140,12 +206,46 @@ function Main(props) {
         setRemoveArray(removeArray.filter((value)=>value.name!==car.name));
         // remove current car data
         setVehicle(null);
+        setCurrVehicleName(null);
+        setRows(null);
         
     };
 
+    // get rows
+    const getRows = async (id)=>{
+
+        setLoading(true);
+        const result = await getTableRows.request({token:"1234", vin:id, first:10, skip:page});
+        setLoading(false);
+        // error
+        if(!result.ok)
+        {
+            return;
+        }
+
+       setRows(result.data.trips);
+    }
+
     // vehicle select handler
-    const handleVehicleSelect = (car)=>{
-        setVehicle(car);
+    const handleVehicleSelect = async (car)=>{
+
+        setLoading(true);
+        const result = await getVehicleDetails.request({token:"1234", vin:car.id});
+        setLoading(false);
+        // error
+        if(!result.ok)
+        {
+            console.log("error");
+            setLive(false);
+            return;
+        }
+
+        setVehicle(result.data.data);
+        // console.log(result.data);
+        setCurrVehicleName(car.name);
+        setLive(true);
+        // get row data
+        getRows(car.id);
     }
     
     // toggling popover
@@ -175,7 +275,12 @@ function Main(props) {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <>
+    
+            <Backdrop className={classes.backdrop} open={loading}>
+                <CircularProgress color="inherit"/>
+            </Backdrop>
+
             <div style={{display: 'flex'}}>
             {/* Left Side Menu */}
             {/* <nav className={classes.drawer}> */}
@@ -241,27 +346,33 @@ function Main(props) {
             >
                 <Grid item className={classes.breadContainer}>
                     {/* BreadCrumbs */}
-                    <VehicleBreadCrumbs name={vehicle? vehicle.name:""}/>
+                    <VehicleBreadCrumbs name={currVehicleName? currVehicleName:""}/>
                 </Grid>
+                {/* Vehicle details and stats */}
                 <Grid item xs={12}>
                     <Grid
                     container
                     direction="row"
                     justifyContent="space-between"
                     >
-                        <Grid >
-                            <CarCard />
+                        {/* Vehicle Details */}
+                        <Grid item>
+                            <CarCard vehicle={vehicle} live={live}/>
                         </Grid>
 
-                        <Grid >
-                            <StatChart />
+                        {/* Stats */}
+                        <Grid item>
+                            <StatChart/>
                         </Grid>
                     </Grid>
                 </Grid>
-
+                
+                <Grid item className={classes.tableContainer}>
+                    <VehicleTable rows={rows} handlePageChange={handlePageChange} page={page}/>
+                </Grid>
             </Grid>
             </div>
-        </ThemeProvider>
+        </>
     );
 };
 

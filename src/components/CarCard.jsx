@@ -5,17 +5,40 @@ import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import Avatar from '@material-ui/core/Avatar';
 
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import green from '@material-ui/core/colors/green';
+import PortableWifiOffIcon from '@material-ui/icons/PortableWifiOff';
+
+import BlackDash from './BlackDash';
 
 const useStyles = makeStyles((theme)=>{
     return {
         cardContainer: {
             padding: theme.spacing(3),
-            width: '250px',
+            width: '600px',
             background: '#e0e0e0'
+        },
+        centerContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: theme.spacing(2)
+        },
+        headingContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            direction: 'row'
+        },
+        icon: {
+            width: theme.spacing(5),
+        },
+        fontIcon: {
+            fontSize: theme.spacing(3),
+            marginLeft: theme.spacing(1)
         }
 
     };
@@ -29,7 +52,7 @@ const theme = createTheme({
 });
 
 
-function CarCard(props) {
+function CarCard({vehicle, live}) {
 
     const classes = useStyles();
 
@@ -39,7 +62,7 @@ function CarCard(props) {
 
             <Grid 
             container
-            justifyContent="space-between"
+            justifyContent="space-evenly"
             direction="row"
             >
                 <Grid item>
@@ -69,25 +92,55 @@ function CarCard(props) {
         )
     };
 
-
     return (
         <ThemeProvider theme={theme}>
     
             <Paper elevation={3} className={classes.cardContainer}>
                 
                 {/* Heading  */}
-                <Typography variant="h5" align="center">
-                    Vehicle Status
-                </Typography>
+                <div className={classes.headingContainer}>
+                    {/* Text */}
+                    <Typography variant="h5" align="center" display="inline" style={{fontWeight: 'bold'}}>
+                        Vehicle Status
+                    </Typography>
+                    {/* Live/Disconnect Icon */}
+                    {vehicle?
+                    live?
+                    <Avatar alt="live" src="./icons/live.gif" className={classes.icon}/>
+                    :
+                    <PortableWifiOffIcon color="error" className={classes.fontIcon}/>
+                    :
+                    <></>
+                    }
+                    
+                </div>
                 <br/>
-                <CardContent type1="Elevation" value1="200m" type2="Throttle" value2={true}/>
-                <br/>
-                <CardContent type1="Temperature" value1="45C" type2="Controller" value2={false}/>
-                <br/>
-                <CardContent type1="Locked" value1={<CheckCircleIcon fontSize="small" color="primary"/>}/>
-                <br/>
-                <CardContent type1="Battery" value1="75.6%"/>
+                <Grid
+                container
+                direction="row"
+                >
+                    {/* Text Details */}
+                    <Grid item xs={5}>
+                        <CardContent type1="Elevation" value1="200m" type2="Throttle" value2={true}/>
+                        <br/>
+                        <CardContent type1="Speed" value1={vehicle?parseInt(vehicle.location.gpsSpeed):"N/A"} type2="Controller" value2={true}/>
+                        <br/>
+                        <CardContent type1="Locked" value1={vehicle?parseInt(vehicle.ignition.lock)?<CheckCircleIcon fontSize="small" color="primary"/>:<CancelIcon fontSize="small" color="error"/>:"N/A"} type2="Motor" value2={true}/>
+                        <br/>
+                        <CardContent type1="Battery" value1={vehicle?parseInt(vehicle.battery.batteryVoltageAdc):"N/A"} type2="Overload" value2={false}/>
+                    </Grid>
 
+                    {/* Black Dash */}
+                    <Grid item xs={7}>
+                        <div className={classes.centerContainer}>
+                            {vehicle?
+                            <BlackDash ignition={parseInt(vehicle.ignition.ignition)} movement={parseInt(vehicle.ignition.movement)} tow={vehicle.alarm.towing?true:false} crash={vehicle.alarm.crashDetection?true:false}/>
+                            :
+                            <BlackDash noMount={true}/>
+                            }
+                        </div>
+                    </Grid>
+                </Grid>
             </Paper>
         </ThemeProvider>
     );
