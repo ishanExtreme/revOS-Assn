@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme)=>{
     return {
         cardContainer: {
             padding: theme.spacing(3),
-            width: '600px',
+            width: '700px',
             background: '#e0e0e0'
         },
         centerContainer: {
@@ -62,7 +62,7 @@ function CarCard({vehicle, live}) {
 
             <Grid 
             container
-            justifyContent="space-evenly"
+            justifyContent="space-between"
             direction="row"
             >
                 <Grid item>

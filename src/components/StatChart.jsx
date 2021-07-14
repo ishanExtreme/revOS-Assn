@@ -70,7 +70,7 @@ function StatChart(props) {
 
 
     return (
-        <>
+        <div>
 
             <Grid
             container
@@ -126,7 +126,7 @@ function StatChart(props) {
             >
             <Chart data={data} axes={axes}/>
             </div>
-        </>
+        </div>
     );
 };
 

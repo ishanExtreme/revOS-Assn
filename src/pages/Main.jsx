@@ -1,20 +1,14 @@
 import React, {useEffect, useState} from 'react';
 
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
-import Drawer from '@material-ui/core/Drawer';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import Popover from '@material-ui/core/Popover';
-import TextField from '@material-ui/core/TextField';
-import AutoComplete from '@material-ui/lab/Autocomplete'
+
 import Grid from '@material-ui/core/Grid';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-import AddIcon from '@material-ui/icons/Add';
-import CancelIcon from '@material-ui/icons/Cancel';
+import AppBar from '@material-ui/core/AppBar';
+import ToolBar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
 
 import CarCard from '../components/CarCard';
 import StatChart from '../components/StatChart';
@@ -23,31 +17,38 @@ import VehicleTable from '../components/VehicleTable';
 import liveApi from '../api/liveapi';
 import rowsApi from '../api/rowapi';
 import useApi from '../hooks/useAPI';
+import VehicleDrawer from '../components/VehicleDrawer';
+import Menu from '@material-ui/icons/Menu';
+
+const drawerWidth = 280;
 
 const useStyles = makeStyles((theme)=>{
     return {
-        drawerPaper: {
-            padding: theme.spacing(3),
-            background: '#e0e0e0',
-            width: '240px',
+        root: {
+            display: 'flex'
         },
-        btn: {
-            marginTop: theme.spacing(3),
-            background: '#424242'
+        appBar: {
+            [theme.breakpoints.up('xl')]: {
+                width: `calc(100% - ${drawerWidth}px)`,
+                marginLeft: drawerWidth,
+            },
         },
-        cardContainer: {
-            display: 'flex',
-            direction: 'row',
-            justifyContent: 'space-between',
-            marginTop: theme.spacing(3),
-            padding: theme.spacing(1)
-        },
-        drawer: {
-            width: '240px',
-            flexShrink: 0,
+        menuButton: {
+            marginRight: theme.spacing(2),
+            [theme.breakpoints.up('xl')]: {
+              display: 'none',
+            },
         },
         vehicleDetailContainer: {
-            marginLeft: '340px'
+            [theme.breakpoints.up('xl')]: {
+                marginLeft: '50px',
+            },
+            marginTop: theme.spacing(10)
+        },
+        statContainer: {
+            [theme.breakpoints.down('lg')]: {
+                marginTop: theme.spacing(3),
+            },
         },
         breadContainer: {
             marginBottom: theme.spacing(5)
@@ -58,6 +59,10 @@ const useStyles = makeStyles((theme)=>{
         },
         tableContainer: {
             marginTop: theme.spacing(3)
+        },
+        horizontalCenter: {
+            display: 'flex',
+            justifyContent: 'center'
         }
     };
 });
@@ -114,8 +119,6 @@ function Main(props) {
     const [addArray, setAddArray] = useState(data);
     // array containing added cars
     const [removeArray, setRemoveArray] = useState([]);
-    // position for the popover to open
-    const [anchorEl, setAnchorEl] = useState(null);
     // current vehicle selected
     const [vehicle, setVehicle] = useState(null);
     // for breadcrumbs display
@@ -128,6 +131,11 @@ function Main(props) {
     const [page, setPage] = useState(0);
     // loading
     const [loading, setLoading] = useState(false);
+    // position for the popover to open
+    const [anchorEl, setAnchorEl] = useState(null);
+    // opening drawer in small screen
+    const [mobileOpen, setMobileOpen] = React.useState(false);
+
 
     // apis
     const getVehicleDetails = useApi(liveApi.vehicle_details);
@@ -151,10 +159,25 @@ function Main(props) {
         getRows(vehicle.vin);
     }, [page]);
 
+    // toogle mobile drawer
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
+    };
+
     // changes page number
     const handlePageChange = (newPage)=>{
         setPage(newPage);
-    }
+    };
+
+    // sets anchorEl to NULL
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    // sets achorEl to the button element position
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
     // live updating vehicle details card
     const liveUpdate = async ()=>{
@@ -175,16 +198,6 @@ function Main(props) {
         setVehicle(result.data.data);
         setLive(true);
 
-    };
-
-    // sets achorEl to the button element position
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    
-    // sets anchorEl to NULL
-    const handleClose = () => {
-        setAnchorEl(null);
     };
 
     // handle select of add vehicle
@@ -247,96 +260,34 @@ function Main(props) {
         // get row data
         getRows(car.id);
     }
-    
-    // toggling popover
-    const open = Boolean(anchorEl);
-
-    const PaperCard = ({car})=>{
-
-        return (
-            // Card Body
-            <Paper
-            className={classes.cardContainer}
-            >
-                {/* Vehicle name */}
-                <Typography variant="subtitle2"
-                onClick={()=>handleVehicleSelect(car)}
-                style={{cursor:"pointer"}}
-                >
-                    {car.name}
-                </Typography>
-                {/* Remove Vehicle option */}
-                <CancelIcon 
-                onClick={()=>handleRemove(car)}
-                style={{cursor:"pointer"}}
-                size="small"/>
-            </Paper>
-        );
-    }
 
     return (
-        <>
-    
+        <div className={classes.root}>
+
+            {/* top navbar */}
+            <AppBar position="fixed" className={classes.appBar} >
+                <ToolBar>
+                    <IconButton
+                    color="secondary"
+                    edge="start"
+                    onClick={handleDrawerToggle}
+                    className={classes.menuButton}
+                    >
+                        <Menu />
+                    </IconButton>
+                    
+                    {/* BreadCrumbs */}
+                    <VehicleBreadCrumbs name={currVehicleName? currVehicleName:""}/>
+                </ToolBar>
+            </AppBar>
+
+            {/* Loading Screen */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit"/>
             </Backdrop>
-
-            <div style={{display: 'flex'}}>
-            {/* Left Side Menu */}
-            {/* <nav className={classes.drawer}> */}
-                <Drawer
-                anchor="left"
-                open={true}
-                variant="permanent"
-                elevation={0}
-                classes={{paper: classes.drawerPaper}}
-                >
-                    {/* Heading */}
-                    <Typography variant="h4" align="center" style={{fontWeight: 'bold', marginBottom: '15px'}}>
-                        Vehicle Viewer
-                    </Typography>
-                    {/* Add Button */}
-                    <Button
-                    size="large"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={handleClick}
-                    className={classes.btn}>
-                        Add vehicle
-                    </Button>
-                    {/* Add vehicle select popover */}
-                    <Popover 
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    >
-                        <AutoComplete 
-                        options={addArray}
-                        onChange={handleSelect}
-                        getOptionLabel={(option)=>option.name}
-                        style={{width: 250}}
-                        renderInput={(params)=> <TextField {...params} label="Search..." variant="filled"/>}
-                        />
-                    </Popover>
-
-                    {/* Added Car(s) */}
-                    {removeArray.map((value)=>{
-                        return (
-                            <PaperCard car={value} key={value.id}/>
-                        );
-                    })}
-
-                </Drawer>
-            {/* </nav> */}
+            
+            {/* Drawer */}
+            <VehicleDrawer addArray={addArray} handleSelect={handleSelect} removeArray={removeArray} handleVehicleSelect={handleVehicleSelect} handleRemove={handleRemove} anchorEl={anchorEl} handleClose={handleClose} handleClick={handleClick} handleSelect={handleSelect} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}/>
         
             {/* Vehicle Related Details */}
             <Grid
@@ -344,10 +295,9 @@ function Main(props) {
             className={classes.vehicleDetailContainer}
             
             >
-                <Grid item className={classes.breadContainer}>
-                    {/* BreadCrumbs */}
-                    <VehicleBreadCrumbs name={currVehicleName? currVehicleName:""}/>
-                </Grid>
+                {/* <Grid item className={classes.breadContainer}>
+                    
+                </Grid> */}
                 {/* Vehicle details and stats */}
                 <Grid item xs={12}>
                     <Grid
@@ -356,23 +306,27 @@ function Main(props) {
                     justifyContent="space-between"
                     >
                         {/* Vehicle Details */}
-                        <Grid item>
-                            <CarCard vehicle={vehicle} live={live}/>
+                        <Grid item lg={12} xl={6}>
+                            <div className={classes.horizontalCenter}>
+                                <CarCard vehicle={vehicle} live={live}/>
+                            </div>
                         </Grid>
 
                         {/* Stats */}
-                        <Grid item>
-                            <StatChart/>
+                        <Grid item lg={12} xl={6} className={classes.statContainer}> 
+                            <div className={classes.horizontalCenter}>
+                                <StatChart/>
+                            </div>
                         </Grid>
                     </Grid>
                 </Grid>
                 
                 <Grid item className={classes.tableContainer}>
-                    <VehicleTable rows={rows} handlePageChange={handlePageChange} page={page}/>
+                    
+                        <VehicleTable rows={rows} handlePageChange={handlePageChange} page={page}/>
                 </Grid>
             </Grid>
             </div>
-        </>
     );
 };
 
