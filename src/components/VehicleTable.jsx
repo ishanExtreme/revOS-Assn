@@ -15,13 +15,13 @@ import Typography from '@material-ui/core/Typography';
 const moment = require('moment');
 
 const columns = [
-    { id: 'startTime', label: 'Start Time', minWidth: 130 },
-    { id: 'duration', label: 'Duration(min)', minWidth: 130, format: (value) => value.toFixed(2)},
-    { id: 'maxGpsSpeed', label: 'Max Speed(kmph)', minWidth: 140},
-    { id: 'avgGpsSpeed', label: 'Average Speed(kmph)', minWidth: 190, format: (value) => value.toFixed(2)},
-    { id: 'start_voltage', label: 'Starting Voltage(V)', minWidth: 180},
-    { id: 'end_voltage', label: 'Ending Voltage(V)', minWidth: 180},
-    { id: 'distance', label: 'Distance(km)', minWidth: 130, format: (value) => value.toFixed(2)},
+    { id: 'startTime', label: 'Start Time', minWidth: 160 },
+    { id: 'duration', label: 'Duration(min)', minWidth: 160, format: (value) => value.toFixed(2)},
+    { id: 'maxGpsSpeed', label: 'Max Speed(kmph)', minWidth: 170},
+    { id: 'avgGpsSpeed', label: 'Average Speed(kmph)', minWidth: 220, format: (value) => value.toFixed(2)},
+    { id: 'start_voltage', label: 'Starting Voltage(V)', minWidth: 200},
+    { id: 'end_voltage', label: 'Ending Voltage(V)', minWidth: 200},
+    { id: 'distance', label: 'Distance(km)', minWidth: 160, format: (value) => value.toFixed(2)},
     { id: 'score', label: 'Driver Score'},
 ];
   
@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme)=>{
         },
         container: {
             maxHeight: 300,
+            [theme.breakpoints.down('lg')]: {
+                maxWidth: '95vw'
+            },
         },
     };
 });
@@ -94,11 +97,11 @@ function VehicleTable({rows, handlePageChange, page}) {
                                         }
                                         else if(column.id === 'start_voltage')
                                         {
-                                            value = row.batteryVoltageAdc[0].voltage;
+                                            value = row.batteryVoltageAdc[row.batteryVoltageAdc.length-1].voltage;
                                         }
                                         else if(column.id === 'end_voltage')
                                         {
-                                            value = row.batteryVoltageAdc[row.batteryVoltageAdc.length-1].voltage;
+                                            value = row.batteryVoltageAdc[0].voltage;
                                         }
                                         else if(column.id === 'distance')
                                         {

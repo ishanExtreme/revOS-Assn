@@ -25,7 +25,17 @@ const useStyles = makeStyles((theme)=>{
             width: 50,
         },
         statsContainer: {
-            width: '700px'
+            width: '700px',
+            [theme.breakpoints.down('xs')]: {
+                width: '300px'
+            },
+        },
+        chartSize: {
+            height: '300px',
+            width: '700px',
+            [theme.breakpoints.down('xs')]: {
+                width: '300px'
+            },
         }
     };
 });
@@ -119,10 +129,7 @@ function StatChart(props) {
             </Grid>
             <br/>
             <div
-            style={{
-                width: '700px',
-                height: '300px'
-            }}
+            className={classes.chartSize}
             >
             <Chart data={data} axes={axes}/>
             </div>

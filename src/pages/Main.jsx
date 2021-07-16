@@ -19,8 +19,10 @@ import rowsApi from '../api/rowapi';
 import useApi from '../hooks/useAPI';
 import VehicleDrawer from '../components/VehicleDrawer';
 import Menu from '@material-ui/icons/Menu';
+import Map from '../components/Map';
+import Toast from '../components/Toast';
 
-const drawerWidth = 280;
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -40,9 +42,7 @@ const useStyles = makeStyles((theme)=>{
             },
         },
         vehicleDetailContainer: {
-            [theme.breakpoints.up('xl')]: {
-                marginLeft: '50px',
-            },
+            
             marginTop: theme.spacing(10)
         },
         statContainer: {
@@ -58,12 +58,13 @@ const useStyles = makeStyles((theme)=>{
             color: '#fff',
         },
         tableContainer: {
-            marginTop: theme.spacing(3)
+            marginTop: theme.spacing(3),
+            marginLeft: theme.spacing(1)
         },
         horizontalCenter: {
             display: 'flex',
             justifyContent: 'center'
-        }
+        },
     };
 });
 
@@ -111,6 +112,25 @@ const data = [
 
 ]
 
+let fullChargeAvg = -1;
+
+const calculateKMS = (rows)=>{
+
+    const distanceTravelledOfHundredBattery = [];
+    rows.forEach((row)=>{
+        const batteryUsedPerTrip = parseFloat(row.batteryVoltageAdc[row.batteryVoltageAdc.length-1].voltage) - parseFloat(row.batteryVoltageAdc[0].voltage);
+        const distanceCoveredPerTrip = parseFloat(row.distance);
+        distanceTravelledOfHundredBattery.push((distanceCoveredPerTrip/batteryUsedPerTrip)*100);
+    });
+
+    let total = 0.0;
+    distanceTravelledOfHundredBattery.forEach((distance)=>{
+        total = total+distance;
+    });
+
+    return total/distanceTravelledOfHundredBattery.length;
+}
+
 function Main(props) {
 
     const classes = useStyles();
@@ -134,7 +154,13 @@ function Main(props) {
     // position for the popover to open
     const [anchorEl, setAnchorEl] = useState(null);
     // opening drawer in small screen
-    const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    // for toogling locate map
+    const [mapOpen, setMapOpen] = useState(false);
+    // toast message
+    const [message, setMessage] = useState('');
+    // toogle toast
+    const [toastOpen, setToastOpen] = useState(false);
 
 
     // apis
@@ -158,6 +184,32 @@ function Main(props) {
         if(!vehicle) return;
         getRows(vehicle.vin);
     }, [page]);
+
+    // handle map closing
+    const handleMapClose = ()=>{
+        setMapOpen(false);
+    };
+
+    // handle toast close
+    const handleToastClose = ()=>{
+        setToastOpen(false);
+    }
+
+    // handle map open
+    const handleMapOpen = ()=>{
+        if(vehicle)
+            setMapOpen(true);
+        else
+        {
+            setToastMessage("Please select a vehicle!!!");
+        }
+    };
+
+    // handle toast msg and open
+    const setToastMessage = (msg)=>{
+        setMessage(msg);
+        setToastOpen(true);
+    };
 
     // toogle mobile drawer
     const handleDrawerToggle = () => {
@@ -225,7 +277,7 @@ function Main(props) {
     };
 
     // get rows
-    const getRows = async (id)=>{
+    const getRows = async (id, start=false)=>{
 
         setLoading(true);
         const result = await getTableRows.request({token:"1234", vin:id, first:10, skip:page});
@@ -237,6 +289,12 @@ function Main(props) {
         }
 
        setRows(result.data.trips);
+
+       if(start)
+       {
+           fullChargeAvg = calculateKMS(result.data.trips);
+
+       }
     }
 
     // vehicle select handler
@@ -258,14 +316,25 @@ function Main(props) {
         setCurrVehicleName(car.name);
         setLive(true);
         // get row data
-        getRows(car.id);
+        // start = true means on selecting a new car first 10 rows is stored
+        // seperately for calculating battery information
+        getRows(car.id, true);
     }
 
     return (
+
         <div className={classes.root}>
 
+            {/* Map Modal */}
+            {vehicle&&
+                <Map vehicle={vehicle} handleMapClose={handleMapClose} mapOpen={mapOpen}/>
+            }
+
+            {/* Toast Message */}
+            <Toast openToast={toastOpen} message={message} handleToastClose={handleToastClose}/>
+
             {/* top navbar */}
-            <AppBar position="fixed" className={classes.appBar} >
+            <AppBar position="fixed" className={classes.appBar} color="inherit">
                 <ToolBar>
                     <IconButton
                     color="secondary"
@@ -277,6 +346,7 @@ function Main(props) {
                     </IconButton>
                     
                     {/* BreadCrumbs */}
+                    
                     <VehicleBreadCrumbs name={currVehicleName? currVehicleName:""}/>
                 </ToolBar>
             </AppBar>
@@ -287,8 +357,8 @@ function Main(props) {
             </Backdrop>
             
             {/* Drawer */}
-            <VehicleDrawer addArray={addArray} handleSelect={handleSelect} removeArray={removeArray} handleVehicleSelect={handleVehicleSelect} handleRemove={handleRemove} anchorEl={anchorEl} handleClose={handleClose} handleClick={handleClick} handleSelect={handleSelect} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}/>
-        
+            <VehicleDrawer addArray={addArray} removeArray={removeArray} handleVehicleSelect={handleVehicleSelect} handleRemove={handleRemove} anchorEl={anchorEl} handleClose={handleClose} handleClick={handleClick} handleSelect={handleSelect} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} handleMapOpen={handleMapOpen}/>
+
             {/* Vehicle Related Details */}
             <Grid
             container
@@ -303,7 +373,7 @@ function Main(props) {
                     <Grid
                     container
                     direction="row"
-                    justifyContent="space-between"
+                    justifyContent="center"
                     >
                         {/* Vehicle Details */}
                         <Grid item lg={12} xl={6}>
@@ -326,6 +396,7 @@ function Main(props) {
                         <VehicleTable rows={rows} handlePageChange={handlePageChange} page={page}/>
                 </Grid>
             </Grid>
+            
             </div>
     );
 };

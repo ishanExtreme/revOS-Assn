@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme)=>{
         cardContainer: {
             padding: theme.spacing(3),
             width: '700px',
+            [theme.breakpoints.down('md')]: {
+                width: '300px',
+            },
             background: '#e0e0e0'
         },
         centerContainer: {
@@ -120,18 +123,18 @@ function CarCard({vehicle, live}) {
                 direction="row"
                 >
                     {/* Text Details */}
-                    <Grid item xs={5}>
+                    <Grid item xs={12} lg={5}>
                         <CardContent type1="Elevation" value1="200m" type2="Throttle" value2={true}/>
                         <br/>
                         <CardContent type1="Speed" value1={vehicle?parseInt(vehicle.location.gpsSpeed):"N/A"} type2="Controller" value2={true}/>
                         <br/>
                         <CardContent type1="Locked" value1={vehicle?parseInt(vehicle.ignition.lock)?<CheckCircleIcon fontSize="small" color="primary"/>:<CancelIcon fontSize="small" color="error"/>:"N/A"} type2="Motor" value2={true}/>
                         <br/>
-                        <CardContent type1="Battery" value1={vehicle?parseInt(vehicle.battery.batteryVoltageAdc):"N/A"} type2="Overload" value2={false}/>
+                        <CardContent type1="Battery" value1={vehicle?parseInt(vehicle.battery.batteryVoltageAdc)+"%":"N/A"} type2="Overload" value2={false}/>
                     </Grid>
 
                     {/* Black Dash */}
-                    <Grid item xs={7}>
+                    <Grid item xs={12} lg={7}>
                         <div className={classes.centerContainer}>
                             {vehicle?
                             <BlackDash ignition={parseInt(vehicle.ignition.ignition)} movement={parseInt(vehicle.ignition.movement)} tow={vehicle.alarm.towing?true:false} crash={vehicle.alarm.crashDetection?true:false}/>

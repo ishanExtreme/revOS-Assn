@@ -1,11 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import CarCard from './components/CarCard';
-import StatChart from './components/StatChart';
 import Main from './pages/Main';
-import VehicleTable from './components/VehicleTable';
 import reportWebVitals from './reportWebVitals';
-import BlackDash from './components/BlackDash';
 
 ReactDOM.render(
 

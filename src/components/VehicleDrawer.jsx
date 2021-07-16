@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React from 'react';
 
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core';
+import { makeStyles} from '@material-ui/core';
 
 import Drawer from '@material-ui/core/Drawer';
 import Typography from '@material-ui/core/Typography';
@@ -13,6 +13,7 @@ import Hidden from '@material-ui/core/Hidden';
 
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
+import ExtraOptions from './ExtraOptions';
 
 const drawerWidth = 240;
 
@@ -25,12 +26,15 @@ const useStyles = makeStyles((theme)=>{
             },
           },
         drawerPaper: {
-            padding: theme.spacing(3),
             background: '#e0e0e0',
             width: drawerWidth,
+            display: 'flex',
+            direction: 'column',
+            justifyContent: 'space-between'
         },
         btn: {
             marginTop: theme.spacing(3),
+            marginLeft: theme.spacing(1.5),
             background: '#424242'
         },
         cardContainer: {
@@ -40,14 +44,14 @@ const useStyles = makeStyles((theme)=>{
             marginTop: theme.spacing(3),
             padding: theme.spacing(1)
         },
+        drawerContentsContainer: {
+            padding: theme.spacing(3),
+        }
 
     };
 });
 
-const theme = createTheme({
-});
-
-function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove, anchorEl, handleClose, handleClick, handleSelect, mobileOpen, handleDrawerToggle}) {
+function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove, anchorEl, handleClose, handleClick, handleSelect, mobileOpen, handleDrawerToggle, handleMapOpen}) {
 
     const classes = useStyles();
 
@@ -75,6 +79,7 @@ function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove
         );
     };
 
+
     // toggling popover
     const open = Boolean(anchorEl);
 
@@ -97,52 +102,58 @@ function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove
                 keepMounted: true, // Better open performance on mobile.
             }}
             >
-                {/* Heading */}
-                <Typography variant="h4" align="center" style={{fontWeight: 'bold', marginBottom: '15px'}}>
-                Vehicle Viewer
-                </Typography>
-                {/* Add Button */}
-                <Button
-                size="large"
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={handleClick}
-                className={classes.btn}>
-                    Add vehicle
-                </Button>
-                {/* Add vehicle select popover */}
-                <Popover 
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                >
-                    <AutoComplete 
-                    options={addArray}
-                    onChange={handleSelect}
-                    getOptionLabel={(option)=>option.name}
-                    style={{width: 250}}
-                    renderInput={(params)=> <TextField {...params} label="Search..." variant="filled"/>}
-                    />
-                </Popover>
+                <div className={classes.drawerContentsContainer}>
+                        {/* Heading */}
+                        <Typography variant="h5" align="center" style={{fontWeight: 'bold', marginBottom: '15px'}}>
+                        Vehicle Viewer
+                        </Typography>
+                        {/* Add Button */}
+                        <Button
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        onClick={handleClick}
+                        className={classes.btn}>
+                            Add vehicle
+                        </Button>
+                        {/* Add vehicle select popover */}
+                        <Popover 
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        >
+                            <AutoComplete 
+                            options={addArray}
+                            onChange={handleSelect}
+                            getOptionLabel={(option)=>option.name}
+                            style={{width: 200}}
+                            renderInput={(params)=> <TextField {...params} label="Search..." variant="filled"/>}
+                            />
+                        </Popover>
 
-                {/* Added Car(s) */}
-                {removeArray.map((value)=>{
-                    return (
-                        <PaperCard car={value} key={value.id}/>
-                    );
-                })}
+                        {/* Added Car(s) */}
+                        {removeArray.map((value)=>{
+                            return (
+                                <PaperCard car={value} key={value.id}/>
+                            );
+                        })}
+                    </div>
+
+                <ExtraOptions handleMapOpen={handleMapOpen}/>
 
             </Drawer>
         </Hidden>
+        {/* Desktop Version Drawer */}
+        {/* Note-> ***Repetition of drawer content on purpose*** */}
         <Hidden lgDown>
             <Drawer
                 anchor="left"
@@ -151,49 +162,54 @@ function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove
                 elevation={0}
                 classes={{paper: classes.drawerPaper}}
                 >
-                    {/* Heading */}
-                    <Typography variant="h4" align="center" style={{fontWeight: 'bold', marginBottom: '15px'}}>
-                    Vehicle Viewer
-                    </Typography>
-                    {/* Add Button */}
-                    <Button
-                    size="large"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={handleClick}
-                    className={classes.btn}>
-                        Add vehicle
-                    </Button>
-                    {/* Add vehicle select popover */}
-                    <Popover 
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    >
-                        <AutoComplete 
-                        options={addArray}
-                        onChange={handleSelect}
-                        getOptionLabel={(option)=>option.name}
-                        style={{width: 250}}
-                        renderInput={(params)=> <TextField {...params} label="Search..." variant="filled"/>}
-                        />
-                    </Popover>
+                    <div className={classes.drawerContentsContainer}>
+                        {/* Heading */}
+                        <Typography variant="h5" align="center" style={{fontWeight: 'bold', marginBottom: '15px'}}>
+                        Vehicle Viewer
+                        </Typography>
+                        {/* Add Button */}
+                        <Button
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        onClick={handleClick}
+                        className={classes.btn}>
+                            Add vehicle
+                        </Button>
+                        {/* Add vehicle select popover */}
+                        <Popover 
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        >
+                            <AutoComplete 
+                            options={addArray}
+                            onChange={handleSelect}
+                            getOptionLabel={(option)=>option.name}
+                            style={{width: 200}}
+                            renderInput={(params)=> <TextField {...params} label="Search..." variant="filled"/>}
+                            />
+                        </Popover>
 
-                    {/* Added Car(s) */}
-                    {removeArray.map((value)=>{
-                        return (
-                            <PaperCard car={value} key={value.id}/>
-                        );
-                    })}
+                        {/* Added Car(s) */}
+                        {removeArray.map((value)=>{
+                            return (
+                                <PaperCard car={value} key={value.id}/>
+                            );
+                        })}
+                    </div>
+
+                    <ExtraOptions handleMapOpen={handleMapOpen}/>
+
 
             </Drawer>
         </Hidden>
