@@ -21,6 +21,7 @@ import VehicleDrawer from '../components/VehicleDrawer';
 import Menu from '@material-ui/icons/Menu';
 import Map from '../components/Map';
 import Toast from '../components/Toast';
+import BatteryModal from '../components/BatteryModal';
 
 const drawerWidth = 240;
 
@@ -112,23 +113,23 @@ const data = [
 
 ]
 
-let fullChargeAvg = -1;
+let OneChargeAvg = -1;
 
 const calculateKMS = (rows)=>{
 
-    const distanceTravelledOfHundredBattery = [];
+    const distanceTravelledOfOneBattery = [];
     rows.forEach((row)=>{
         const batteryUsedPerTrip = parseFloat(row.batteryVoltageAdc[row.batteryVoltageAdc.length-1].voltage) - parseFloat(row.batteryVoltageAdc[0].voltage);
         const distanceCoveredPerTrip = parseFloat(row.distance);
-        distanceTravelledOfHundredBattery.push((distanceCoveredPerTrip/batteryUsedPerTrip)*100);
+        distanceTravelledOfOneBattery.push((distanceCoveredPerTrip/batteryUsedPerTrip));
     });
 
     let total = 0.0;
-    distanceTravelledOfHundredBattery.forEach((distance)=>{
+    distanceTravelledOfOneBattery.forEach((distance)=>{
         total = total+distance;
     });
 
-    return total/distanceTravelledOfHundredBattery.length;
+    return total/(distanceTravelledOfOneBattery.length);
 }
 
 function Main(props) {
@@ -161,6 +162,10 @@ function Main(props) {
     const [message, setMessage] = useState('');
     // toogle toast
     const [toastOpen, setToastOpen] = useState(false);
+    // avg. distance on current battery
+    const [avgDistance, setAvgDistance] = useState(-1);
+    // toogle battery modal
+    const [batteryModalOpen, setBatteryModalOpen] = useState(false);
 
 
     // apis
@@ -184,6 +189,26 @@ function Main(props) {
         if(!vehicle) return;
         getRows(vehicle.vin);
     }, [page]);
+
+    // handle battery modal closing
+    const handleBatteryModalClose = ()=>{
+        setBatteryModalOpen(false);
+    };
+
+    // handle battery modal open
+    const handleBatteryModalOpen = ()=>{
+        if(vehicle)
+        {
+            let distance = OneChargeAvg*parseFloat(vehicle.battery.batteryVoltageAdc);
+            distance = Math.floor(distance);
+            setAvgDistance(distance);
+            setBatteryModalOpen(true);
+        }
+        else
+        {
+            setToastMessage("Please select a vehicle!!!");
+        }
+    }
 
     // handle map closing
     const handleMapClose = ()=>{
@@ -292,7 +317,7 @@ function Main(props) {
 
        if(start)
        {
-           fullChargeAvg = calculateKMS(result.data.trips);
+           OneChargeAvg = calculateKMS(result.data.trips);
 
        }
     }
@@ -330,6 +355,9 @@ function Main(props) {
                 <Map vehicle={vehicle} handleMapClose={handleMapClose} mapOpen={mapOpen}/>
             }
 
+            {/* Battery Modal */}
+            <BatteryModal batteryModalOpen={batteryModalOpen} handleBatteryModalClose={handleBatteryModalClose} distance={avgDistance}/>
+
             {/* Toast Message */}
             <Toast openToast={toastOpen} message={message} handleToastClose={handleToastClose}/>
 
@@ -357,7 +385,7 @@ function Main(props) {
             </Backdrop>
             
             {/* Drawer */}
-            <VehicleDrawer addArray={addArray} removeArray={removeArray} handleVehicleSelect={handleVehicleSelect} handleRemove={handleRemove} anchorEl={anchorEl} handleClose={handleClose} handleClick={handleClick} handleSelect={handleSelect} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} handleMapOpen={handleMapOpen}/>
+            <VehicleDrawer addArray={addArray} removeArray={removeArray} handleVehicleSelect={handleVehicleSelect} handleRemove={handleRemove} anchorEl={anchorEl} handleClose={handleClose} handleClick={handleClick} handleSelect={handleSelect} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} handleMapOpen={handleMapOpen} handleBatteryModalOpen={handleBatteryModalOpen}/>
 
             {/* Vehicle Related Details */}
             <Grid

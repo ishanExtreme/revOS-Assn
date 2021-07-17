@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove, anchorEl, handleClose, handleClick, handleSelect, mobileOpen, handleDrawerToggle, handleMapOpen}) {
+function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove, anchorEl, handleClose, handleClick, handleSelect, mobileOpen, handleDrawerToggle, handleMapOpen, handleBatteryModalOpen}) {
 
     const classes = useStyles();
 
@@ -208,7 +208,7 @@ function VehicleDrawer({addArray, removeArray, handleVehicleSelect, handleRemove
                         })}
                     </div>
 
-                    <ExtraOptions handleMapOpen={handleMapOpen}/>
+                    <ExtraOptions handleMapOpen={handleMapOpen} handleBatteryModalOpen={handleBatteryModalOpen}/>
 
 
             </Drawer>

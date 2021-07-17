@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function ExtraOptions({handleMapOpen}) {
+function ExtraOptions({handleMapOpen, handleBatteryModalOpen}) {
 
     const classes = useStyles();
 
@@ -40,7 +40,7 @@ function ExtraOptions({handleMapOpen}) {
                 <Tooltip title="Battery Info">
                     <IconButton
                     color="secondary"
-                    // onClick={handleMapOpen}
+                    onClick={handleBatteryModalOpen}
                     >
                         <BatteryUnknownIcon fontSize="large"/>
                     </IconButton>

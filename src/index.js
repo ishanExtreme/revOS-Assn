@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import BatteryModal from './components/BatteryModal';
 import Main from './pages/Main';
 import reportWebVitals from './reportWebVitals';
 
