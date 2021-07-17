@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme)=>{
         modelContent: {
             height: '80%',
             width: '80%',
-            backgroundColor: "#212121",
+            backgroundColor: "white",
             padding: 20,
             border: 'solid 2px #ffab00',
             boxShadow: theme.shadows[5],

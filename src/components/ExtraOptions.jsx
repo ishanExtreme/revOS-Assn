@@ -6,8 +6,9 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import NotListedLocationIcon from '@material-ui/icons/NotListedLocation';
-import BatteryUnknownIcon from '@material-ui/icons/BatteryUnknown';
+import NotListedLocationOutlinedIcon from '@material-ui/icons/NotListedLocationOutlined';
+import TimerIcon from '@material-ui/icons/Timer';
+import MapOutlinedIcon from '@material-ui/icons/MapOutlined';
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -21,28 +22,38 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function ExtraOptions({handleMapOpen, handleBatteryModalOpen}) {
+function ExtraOptions({handleMapOpen, handleDistanceModalOpen}) {
 
     const classes = useStyles();
 
     return (
         
             <Paper className={classes.optionContainer} elevation={3}>
+
+                <Tooltip title="Trace Back">
+                    <IconButton
+                    color="secondary"
+                    // onClick={handleDistanceModalOpen}
+                    >
+                        <MapOutlinedIcon fontSize="large"/>
+                    </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Locate">
                     <IconButton
                     color="secondary"
                     onClick={handleMapOpen}
                     >
-                        <NotListedLocationIcon fontSize="large"/>
+                        <NotListedLocationOutlinedIcon fontSize="large"/>
                     </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Battery Info">
+                <Tooltip title="Get Time">
                     <IconButton
                     color="secondary"
-                    onClick={handleBatteryModalOpen}
+                    onClick={handleDistanceModalOpen}
                     >
-                        <BatteryUnknownIcon fontSize="large"/>
+                        <TimerIcon fontSize="large"/>
                     </IconButton>
                 </Tooltip>
 

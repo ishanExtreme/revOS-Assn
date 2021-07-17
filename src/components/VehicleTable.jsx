@@ -105,7 +105,7 @@ function VehicleTable({rows, handlePageChange, page}) {
                                         }
                                         else if(column.id === 'distance')
                                         {
-                                            value = parseFloat(row[column.id]);
+                                            value = parseFloat(row[column.id])/1000;
                                         }
                                         else if(column.id === 'score')
                                         {
