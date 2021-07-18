@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import DistanceTimeModal from './components/DistanceTimeModal';
 import Main from './pages/Main';
 import reportWebVitals from './reportWebVitals';
 
